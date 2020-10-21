@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: eganshubrssdump
+  rssdump:
+    build: .
+    environment:
+      RSS_MONGO_ADDRESS: mongodb
+      RSS_DATABASE_NAME: rssdump
+      RSS_MONGO_USER: root
+      RSS_MONGO_PASS: eganshubrssdump
+    ports:
+      - 8080:8080

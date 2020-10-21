@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RSSDump - Startup</title>
+  </head>
+  <body>
+    <script>
+      function createUser(e) {
+        e.preventDefault()
+
+        let user = document.querySelector('#user').value
+        let pass = document.querySelector('#pass').value
+
+        fetch(`/api/startup?user=${user}`, {
+          body: pass
+        })
+      }
+    </script>
+    <h1>Welcome to RSSDump!</h1>
+    <p><b>Please complete this initial setup to use RSSDump:</b></p>
+    <form onsubmit="createUser()">
+      <input id="user" type="text" placeholder="Admin Username" />
+      <input id="pass" type="password" placeholder="Admin Password" />
+      <input type="submit">Create User</input>
+    </form>
+  </body>
+</html>

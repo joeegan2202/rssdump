@@ -1,0 +1,21 @@
+{
+  "name": "rssdump",
+  "version": "1.0.0",
+  "description": "Web application to manage and archive RSS",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "author": "Joe Egan",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.6.2"
+  }
+}

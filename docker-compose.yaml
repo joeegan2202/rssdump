@@ -15,3 +15,4 @@ services:
       RSS_MONGO_PASS: eganshubrssdump
     ports:
       - 8080:8080
+    restart: unless-stopped

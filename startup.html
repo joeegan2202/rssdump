@@ -5,20 +5,33 @@
   </head>
   <body>
     <script>
+      window.onload = () => {
+        document.querySelector('form').onsubmit = createUser
+      }
+
       function createUser(e) {
         e.preventDefault()
 
         let user = document.querySelector('#user').value
         let pass = document.querySelector('#pass').value
 
-        fetch(`/api/startup?user=${user}`, {
-          body: pass
+        fetch(`/api/startup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user,
+            pass
+          })
+        }).then(data => data.json()).then((err, data) => {
+          location.reload()
         })
       }
     </script>
     <h1>Welcome to RSSDump!</h1>
     <p><b>Please complete this initial setup to use RSSDump:</b></p>
-    <form onsubmit="createUser()">
+    <form>
       <input id="user" type="text" placeholder="Admin Username" />
       <input id="pass" type="password" placeholder="Admin Password" />
       <input type="submit">Create User</input>

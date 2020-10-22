@@ -8,4 +8,12 @@ EXPOSE 8080
 
 RUN npm install
 
-CMD ["npm", "start", "/usr/src/app"]
+WORKDIR client
+
+RUN npm install
+
+RUN npm run build
+
+WORKDIR /usr/src/app
+
+CMD ["npm", "start"]

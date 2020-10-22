@@ -1,14 +1,19 @@
-import 'express'
-import 'path'
-import 'crypto'
-import { MongoClient } from 'mongodb'
+import express from 'express'
+import path from 'path'
+import crypto from 'crypto'
+import { default as mongodb} from 'mongodb'
+import startup from './startup.js'
 
-let db = null
-let startup = true
+let MongoClient = mongodb.MongoClient
+
+global.db = null
+global.startup = true
 
 const app = express()
 
-MongoClient.connect(`mongodb://${process.env.RSS_MONGO_ADDRESS}:27017/`, (err, res) => {
+app.use(express.json())
+
+MongoClient.connect(`mongodb://${process.env.RSS_MONGO_USER}:${process.env.RSS_MONGO_PASS}@${process.env.RSS_MONGO_ADDRESS}:27017/`, (err, res) => {
   if (err) throw err
 
   db = res.db(process.env.RSS_DATABASE_NAME)
@@ -16,51 +21,26 @@ MongoClient.connect(`mongodb://${process.env.RSS_MONGO_ADDRESS}:27017/`, (err, r
   db.collection('startup').countDocuments((err, res) => {
     if (err) console.log(err)
 
-    startup = !res
+    global.startup = !res
   })
 })
 
-app.get('/', (req, res) => {
-  if (startup) {
-    res.sendFile(path.join(__dirname, 'startup.html'))
+app.get('*', (req, res, next) => {
+  if (global.startup) {
+    res.sendFile(path.resolve('./startup.html'))
   } else {
-    express.static('client/build')(req, res)
+    express.static('client/build')(req, res, next)
   }
 })
 
-app.get('/api/startup', (req, res) => {
-  if (!startup) return
-
-  console.log(req.query)
-
-  db.collection('users').insertOne({
-    name: req.query.name,
-    password: crypto.createHash('sha256').update(req.query.pass).digest('hex')
-  }, (err, id) => {
-    if (err) {
-      res.send({err: true, msg: `Error inserting user ${req.query.user}`})
-      return
-    }
-
-    db.collection('startup').insertOne({started: true}, (err, id) => {
-      if (err) {
-        res.send({err: true, msg: `Could not update startup flag!`})
-        return
-      }
-
-      startup = false
-
-      res.send({err: false})
-    })
-  })
-})
+app.post('/api/startup', startup)
 
 app.get('/api/auth', (req, res) => {
-  let password = crypto.createHash('sha256').update(req.query.pass).digest('hex')
+  let password = crypto.createHash('sha256').update(req.body.pass).digest('hex')
 
   let status = -1
   db.collection('users').find({
-    name: req.query.user,
+    name: req.body.user,
   }).forEach((user) => {
     status = 0
     if (user.password === password) {
@@ -89,7 +69,7 @@ app.get('/api/auth', (req, res) => {
 
         db.collection('sessions').insertOne({
           _id: sessionId,
-          name: req.query.user,
+          name: req.body.user,
           timestamp: Date.now()
         }, (err, id) => {
           if (err) {
